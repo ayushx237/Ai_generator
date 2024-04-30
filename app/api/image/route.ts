@@ -15,45 +15,58 @@ export async function POST(
   req: Request
 ) {
   try {
+    console.log("h1")
     const { userId } = auth();
+    console.log("h2")
     const body = await req.json();
+    console.log("h3")
     const { prompt, amount = 1, resolution = "512x512" } = body;
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
+      console.log("h3")
     }
 
     if (!configuration.apiKey) {
+        console.log("h4")
       return new NextResponse("OpenAI API Key not configured.", { status: 500 });
     }
 
     if (!prompt) {
+      console.log("h5")
       return new NextResponse("Prompt is required", { status: 400 });
     }
 
     if (!amount) {
+      console.log("h6")
       return new NextResponse("Amount is required", { status: 400 });
     }
 
     if (!resolution) {
+      console.log("h7")
       return new NextResponse("Resolution is required", { status: 400 });
     }
-
+    console.log("h7")
     const freeTrial = await checkApiLimit();
+   
     const isPro = await checkSubscription();
 
     if (!freeTrial && !isPro) {
+     
       return new NextResponse("Free trial has expired. Please upgrade to pro.", { status: 403 });
     }
-
+    console.log("h9")
     const response = await openai.createImage({
       prompt,
       n: parseInt(amount, 10),
       size: resolution,
     });
+    console.log("h8")
 
     if (!isPro) {
+      console.log("h7")
       await incrementApiLimit();
+      console.log("h8")
     }
 
     return NextResponse.json(response.data.data);
